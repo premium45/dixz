@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>dixzAPK - Comic Style</title>
+
+    <meta name="theme-color" content="#ff85a2">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://i.supaimg.com/31128174-9979-4350-b3f7-961ec0bb9ac1.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #70d6ff;
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-style: 2px solid #333;
+            --accent-green: #4ade80;
+            --accent-purple: #a78bfa;
+            --accent-yellow: #fbbf24;
+            --shadow-color: #333;
+        }
+
+        /* PREMIUM DARK MODE */
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --card-bg: #16213e;
+            --primary-color: #e94560;
+            --secondary-color: #0f3460;
+            --border-style: 2px solid #e0e0e0;
+            --shadow-color: #000;
+            --accent-purple: #6a0dad;
+            --accent-green: #00b894;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Background Pattern Logic */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--text-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* SPLASH SCREEN */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+        .splash-logo {
+            font-family: 'Comic Neue', cursive;
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-shadow: 4px 4px 0px var(--shadow-color);
+            animation: bounce 1s infinite alternate;
+        }
+        .splash-loader {
+            margin-top: 20px;
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--text-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Logo & Nav */
+        .logo {
+            font-family: 'Comic Neue', cursive;
+            font-weight: 700;
+            font-size: 1.7rem;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 0px var(--shadow-color);
+            letter-spacing: -0.5px;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0; width: 100%; height: 60px;
+            background: var(--card-bg);
+            border-bottom: var(--border-style);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        .menu-btn div { height: 3px; background: var(--text-color); border-radius: 2px; margin-bottom: 5px; width: 30px; }
+        .menu-btn div:last-child { margin-bottom: 0; }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; left: -300px; top: 0; width: 280px; height: 100vh;
+            background: var(--card-bg);
+            border-right: var(--border-style);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px; margin-bottom: 15px;
+        }
+        .back-btn {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--text-color);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .side-item {
+            margin: 10px 0; padding: 12px;
+            background: rgba(0,0,0,0.03);
+            border: 2px solid var(--text-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex; align-items: center; gap: 10px;
+            transition: all 0.2s;
+        }
+        .side-item:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--primary-color);
+            background: var(--card-bg);
+        }
+
+        /* Content */
+        .content { padding: 80px 16px 100px 16px; max-width: 600px; margin: 0 auto; min-height: 100vh; }
+        
+        .premium-card {
+            background: var(--card-bg);
+            border: 3px solid var(--text-color);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 6px 6px 0px var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        /* Schedule Grid */
+        .schedule-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+            border: 2px solid var(--text-color); border-radius: 8px; overflow: hidden;
+        }
+        .schedule-header {
+            background: var(--primary-color); color: white;
+            padding: 8px 2px; text-align: center; font-size: 0.75rem; font-weight: bold;
+            border-right: 1px solid var(--text-color);
+        }
+        .schedule-cell {
+            background: var(--card-bg); padding: 8px 2px;
+            text-align: center; font-size: 0.75rem; color: var(--text-color);
+            border-right: 1px solid var(--text-color); border-top: 1px solid var(--text-color);
+            min-height: 40px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        /* Buttons & Inputs */
+        input, textarea, select {
+            width: 100%; padding: 12px; margin: 8px 0;
+            border: 2px solid var(--text-color); border-radius: 10px;
+            background: var(--bg-color); color: var(--text-color);
+            font-family: inherit;
+        }
+        .btn-comic {
+            background: var(--primary-color); color: white;
+            border: 2px solid var(--text-color);
+            padding: 12px; border-radius: 12px;
+            cursor: pointer; font-weight: bold;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            width: 100%; margin-top: 10px;
+        }
+        .btn-comic:active { transform: translate(2px, 2px); box-shadow: 0 0 0; }
+        .btn-comic.secondary { background: #ccc; color: #333; }
+        
+        /* Modals */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; }
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 92%; max-width: 380px;
+            background: var(--card-bg); border: 3px solid var(--text-color);
+            border-radius: 20px; padding: 20px; z-index: 3000;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.4);
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        /* Media & Profile */
+        .profile-card-comic {
+            background: var(--card-bg); border: 3px solid var(--text-color);
+            border-radius: 20px; padding: 24px; text-align: center;
+            box-shadow: 6px 6px 0px var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .profile-img-comic {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 4px solid var(--text-color); object-fit: cover;
+            box-shadow: 4px 4px 0px var(--primary-color);
+        }
+
+        /* Improved Gallery Layout */
+        .media-container {
+            background: var(--bg-color);
+            border: 2px solid var(--text-color);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        .media-gallery {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+        }
+        .media-item {
+            aspect-ratio: 1; background: #eee;
+            border: 2px solid var(--text-color); border-radius: 10px;
+            overflow: hidden; position: relative; cursor: pointer;
+            box-shadow: 2px 2px 0px var(--text-color);
+        }
+        .media-item img, .media-item video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Media Preview */
+        .media-preview-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 5000;
+            justify-content: center; align-items: center;
+        }
+        .media-preview-modal.active { display: flex; }
+        .media-preview-box {
+            background: var(--card-bg);
+            padding: 10px; border: 3px solid var(--text-color);
+            border-radius: 12px; max-width: 95%; max-height: 85%;
+            position: relative;
+        }
+        .media-preview-box img, .media-preview-box video {
+            max-width: 100%; max-height: 70vh; display: block; border-radius: 8px;
+        }
+        
+        /* Audio Player Bar (No Overlay) */
+        .audio-bar {
+            position: fixed; bottom: 75px; left: 10px; right: 10px;
+            background: var(--accent-purple); color: white;
+            border: 2px solid var(--text-color); border-radius: 50px;
+            padding: 8px 16px; display: flex; align-items: center; gap: 12px;
+            z-index: 900; box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+            transform: translateY(150%); transition: transform 0.3s;
+        }
+        .audio-bar.active { transform: translateY(0); }
+        .audio-info { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.9rem; font-weight: bold; }
+        .audio-btn { cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .audio-btn svg { width: 20px; height: 20px; fill: white; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: var(--card-bg); border-top: var(--border-style);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .nav-item { padding: 0 20px; text-align: center; cursor: pointer; opacity: 0.6; }
+        .nav-item.active-nav { opacity: 1; transform: scale(1.1); }
+        .nav-icon svg { stroke: var(--text-color); width: 28px; height: 28px; }
+
+        .hidden { display: none !important; }
+        
+        /* Utils */
+        .delete-btn-overlay {
+            position: absolute; top: 4px; right: 4px;
+            background: #ff4d4d; width: 24px; height: 24px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 1px solid white; z-index: 5;
+        }
+        .delete-btn-overlay svg { width: 14px; height: 14px; stroke: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo">dixzAPK</div>
+        <div class="splash-loader"></div>
+        <p style="margin-top: 10px; font-weight: bold; color: var(--text-color);">Memuat Data...</p>
+    </div>
+
+    <!-- Overlay Global -->
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="logo">dixzAPK</div>
+        <div class="menu-btn" onclick="toggleSidebar()">
+            <div></div><div></div><div></div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <div class="back-btn" onclick="toggleSidebar()">X</div>
+        </div>
+
+        <div class="side-item" onclick="toggleDarkMode()">
+            <span>🌙 Mode Gelap/Terang</span>
+        </div>
+        <div class="side-item" onclick="checkAuth('modalUang')">
+            <span>💰 Input Uang</span>
+        </div>
+        <div class="side-item" onclick="checkAuth('modalMapel')">
+            <span>📅 Edit Jadwal Pelajaran</span>
+        </div>
+        <div class="side-item" onclick="checkAuth('modalTarget')">
+            <span>🎯 Tambah Target Harian</span>
+        </div>
+        <div class="side-item" onclick="checkAuth('modalCita')">
+            <span>🌟 Tambah Cita-Cita</span>
+        </div>
+        <div class="side-item" onclick="checkAuth('modalAlbum')">
+            <span>📷 Tambahkan Album</span>
+        </div>
+        <hr style="margin: 15px 0; border: 1px solid var(--text-color);">
+        <div class="side-item" onclick="checkAuth(null, exportData)">
+            <span>📤 Bagikan Data (Backup)</span>
+        </div>
+        <div class="side-item" onclick="showModal('modalImport')">
+            <span>📥 Masukkan Data (Restore)</span>
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <main class="content" id="homePage">
+        <h2 id="welcomeText" style="margin-bottom: 10px;">Selamat datang!</h2>
+        
+        <!-- Saldo Card -->
+        <div class="premium-card">
+            <div style="display:flex; justify-content:space-between;">
+                <span>SALDO SAYA</span>
+                <span onclick="checkAuth('modalWalletDetail')" style="cursor:pointer; font-weight:bold;">Riwayat ></span>
+            </div>
+            <div style="font-size: 2rem; font-weight: bold; font-family:'Comic Neue'; margin: 10px 0;">
+                Rp <span id="displaySaldo">0</span>
+            </div>
+            <div id="growthText" style="font-size: 0.9rem; color: var(--accent-green); font-weight:bold;">+0% dari awal</div>
+        </div>
+
+        <!-- Schedule -->
+        <h3>Jadwal Pelajaran</h3>
+        <div class="premium-card">
+            <div class="schedule-grid" id="scheduleGrid">
+                <!-- Grid will be generated via JS -->
+            </div>
+        </div>
+
+        <!-- Targets -->
+        <h3>Target Harian</h3>
+        <div class="premium-card" id="targetList">
+            <p style="text-align:center; color:gray;">Belum ada target</p>
+        </div>
+
+        <!-- Cita-Cita -->
+        <h3>Cita-Cita</h3>
+        <div class="premium-card" style="background: rgba(255,133,162,0.1); text-align:center;">
+            <p id="displayCita" style="font-family:'Patrick Hand'; font-size:1.4rem;">Belum ditentukan</p>
+        </div>
+    </main>
+
+    <!-- PROFILE PAGE -->
+    <main class="content hidden" id="profilePage">
+        <div id="notLoggedInBlock" style="text-align:center; padding-top: 50px;">
+            <h3>Anda belum login</h3>
+            <p>Silakan login untuk mengakses profil dan media.</p>
+            <button class="btn-comic" onclick="showModal('modalLogin')">LOGIN / DAFTAR</button>
+        </div>
+
+        <div id="loggedInBlock" class="hidden">
+            <div class="profile-card-comic">
+                <img id="profileImg" class="profile-img-comic" src="https://via.placeholder.com/100" onclick="document.getElementById('fileProfile').click()">
+                <input type="file" id="fileProfile" style="display:none" accept="image/*" onchange="uploadProfilePic(event)">
+                <h2 id="profileName" style="margin-top:10px;">Username</h2>
+                <p id="profileBio" style="font-style:italic; opacity:0.8;">Belum ada bio</p>
+                <button class="btn-comic" style="background:#ff4d4d; margin-top:10px;" onclick="doLogout()">Keluar Aplikasi</button>
+            </div>
+
+            <!-- Musik Section -->
+            <h3>🎵 Musik Galeri</h3>
+            <div class="premium-card media-container">
+                <div id="musicList">
+                    <!-- Music items JS -->
+                </div>
+            </div>
+
+            <!-- Media Section -->
+            <h3>📸 Album Foto & Video</h3>
+            <div class="premium-card media-container">
+                <div class="media-gallery" id="mediaGallery">
+                    <!-- Media items JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <div class="nav-item active-nav" onclick="switchPage('home')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span style="font-size:0.8rem; font-weight:bold;">Beranda</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('profile')">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <span style="font-size:0.8rem; font-weight:bold;">Profil</span>
+        </div>
+    </nav>
+
+    <!-- Audio Player Floating Bar -->
+    <div class="audio-bar" id="audioBar">
+        <div class="audio-btn" onclick="togglePlay()">
+            <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="audio-info" id="audioTitle">Judul Musik</div>
+        <div class="audio-btn" onclick="stopMusic()">
+            <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>
+        </div>
+    </div>
+    <audio id="globalAudio"></audio>
+
+    <!-- MODALS -->
+    <!-- Login -->
+    <div id="modalLogin" class="modal">
+        <h3>Login Akun</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button class="btn-comic" onclick="login()">Masuk</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        <p style="text-align:center; margin-top:10px;">Belum punya akun? <b style="cursor:pointer; color:var(--primary-color)" onclick="switchModal('modalRegister')">Daftar</b></p>
+    </div>
+
+    <!-- Register -->
+    <div id="modalRegister" class="modal">
+        <h3>Daftar Baru</h3>
+        <input type="text" id="regUser" placeholder="Username (Tanpa spasi)">
+        <input type="password" id="regPass" placeholder="Password">
+        <button class="btn-comic" onclick="register()">Daftar</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Input Uang -->
+    <div id="modalUang" class="modal">
+        <h3>Input Uang</h3>
+        <input type="number" id="inputAmount" placeholder="Nominal Rp">
+        <button class="btn-comic" onclick="addMoney()">Simpan</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Wallet Detail -->
+    <div id="modalWalletDetail" class="modal">
+        <h3>Dompet & Riwayat</h3>
+        <div style="max-height: 200px; overflow-y:auto;" id="historyList"></div>
+        <button class="btn-comic" onclick="closeModal()">Tutup</button>
+    </div>
+
+    <!-- Edit Mapel -->
+    <div id="modalMapel" class="modal">
+        <h3>Edit Jadwal</h3>
+        <select id="daySelect">
+            <option value="Senin">Senin</option>
+            <option value="Selasa">Selasa</option>
+            <option value="Rabu">Rabu</option>
+            <option value="Kamis">Kamis</option>
+            <option value="Jumat">Jumat</option>
+        </select>
+        <input type="text" id="mapelInput" placeholder="Mapel (pisahkan koma)">
+        <button class="btn-comic" onclick="saveMapel()">Simpan</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Target -->
+    <div id="modalTarget" class="modal">
+        <h3>Tambah Target</h3>
+        <input type="text" id="targetInput" placeholder="Target hari ini...">
+        <button class="btn-comic" onclick="addTarget()">Tambah</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Cita -->
+    <div id="modalCita" class="modal">
+        <h3>Ubah Cita-Cita</h3>
+        <input type="text" id="citaInput" placeholder="Cita-cita...">
+        <button class="btn-comic" onclick="saveCita()">Simpan</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Album Upload -->
+    <div id="modalAlbum" class="modal">
+        <h3>Upload Album</h3>
+        <button class="btn-comic" onclick="document.getElementById('uploadMusic').click()">Upload Musik 🎵</button>
+        <button class="btn-comic" onclick="document.getElementById('uploadFotoVideo').click()">Upload Foto/Video 📸</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        
+        <input type="file" id="uploadMusic" accept="audio/*" style="display:none" onchange="processUpload(event, 'music')">
+        <input type="file" id="uploadFotoVideo" accept="image/*,video/*" style="display:none" onchange="processUpload(event, 'media')">
+    </div>
+
+    <!-- Import -->
+    <div id="modalImport" class="modal">
+        <h3>Restore Data</h3>
+        <p>Pilih file .json yang sebelumnya di-backup.</p>
+        <input type="file" id="importFile" accept=".json">
+        <button class="btn-comic" onclick="importData()">Proses Import</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+    </div>
+
+    <!-- Media Preview -->
+    <div class="media-preview-modal" id="mediaPreviewModal" onclick="closeMediaPreview()">
+        <div class="media-preview-box" onclick="event.stopPropagation()">
+            <div id="mediaContent"></div>
+            <button class="btn-comic" style="margin-top:10px;" onclick="closeMediaPreview()">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI DATA ---
+        // Kita gunakan 2 key di localStorage: 
+        // 1. 'dixz_accounts' untuk data teks (user, pass, mapel, target) - Ringan
+        // 2. 'dixz_media' untuk data berat (foto, video, musik) - Berat (Base64)
+        
+        let currentUser = null;
+        let accounts = {};
+        let mediaStorage = {}; 
+        
+        // Struktur Data Default User
+        const defaultUser = {
+            saldo: 0,
+            initialSaldo: 0,
+            history: [],
+            schedule: {
+                "Senin": ["-", "-"], "Selasa": ["-", "-"], "Rabu": ["-", "-"], "Kamis": ["-", "-"], "Jumat": ["-", "-"]
+            },
+            targets: [],
+            cita: "Belum ditentukan",
+            bio: "Belum ada bio",
+            profilePic: "https://via.placeholder.com/100"
+        };
+
+        // --- SISTEM ---
+        window.onload = function() {
+            // Splash Screen Timer
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.visibility = 'hidden';
+                }, 500);
+            }, 2000);
+
+            loadData();
+            checkSession();
+            renderUI();
+        };
+
+        function loadData() {
+            try {
+                const accData = localStorage.getItem('dixz_accounts');
+                accounts = accData ? JSON.parse(accData) : {};
+                
+                const medData = localStorage.getItem('dixz_media');
+                mediaStorage = medData ? JSON.parse(medData) : {};
+            } catch (e) {
+                console.error("Gagal memuat data", e);
+                alert("Peringatan: Data mungkin korup atau penyimpanan penuh.");
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('dixz_accounts', JSON.stringify(accounts));
+                // Simpan media secara terpisah agar jika penuh, teks tetap aman
+                try {
+                    localStorage.setItem('dixz_media', JSON.stringify(mediaStorage));
+                } catch (e) {
+                    alert("Penyimpanan Penuh! Media terakhir tidak tersimpan. Hapus beberapa foto/video.");
+                }
+            } catch (e) {
+                alert("Gagal menyimpan data sistem.");
+            }
+            renderUI(); // Render ulang agar tampilan selalu sinkron
+        }
+
+        function checkSession() {
+            const sessionUser = localStorage.getItem('dixz_session');
+            if (sessionUser && accounts[sessionUser]) {
+                currentUser = sessionUser;
+            }
+        }
+
+        // --- AUTH ---
+        function checkAuth(modalId, callback) {
+            if (!currentUser) {
+                alert("Fitur ini memerlukan Login.");
+                showModal('modalLogin');
+            } else {
+                if (modalId) showModal(modalId);
+                if (callback) callback();
+            }
+        }
+
+        function register() {
+            const u = document.getElementById('regUser').value.trim();
+            const p = document.getElementById('regPass').value;
+            
+            if (!u || !p) return alert("Isi semua kolom!");
+            if (accounts[u]) return alert("Username sudah dipakai!");
+            
+            // Buat user baru
+            accounts[u] = { 
+                password: p, 
+                ...JSON.parse(JSON.stringify(defaultUser)) // Deep copy default
+            };
+            mediaStorage[u] = { music: [], photos: [], videos: [] };
+            
+            saveData();
+            alert("Berhasil daftar! Silakan login.");
+            switchModal('modalLogin');
+        }
+
+        function login() {
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value;
+            
+            if (accounts[u] && accounts[u].password === p) {
+                currentUser = u;
+                localStorage.setItem('dixz_session', u); // Simpan sesi agar tidak hilang saat refresh
+                closeModal();
+                renderUI();
+                alert("Login Berhasil!");
+            } else {
+                alert("Username atau Password salah!");
+            }
+        }
+
+        function doLogout() {
+            if(confirm("Yakin ingin keluar?")) {
+                currentUser = null;
+                localStorage.removeItem('dixz_session');
+                stopMusic();
+                location.reload();
+            }
+        }
+
+        // --- RENDERING UI ---
+        function renderUI() {
+            // Beranda
+            if (currentUser) {
+                const data = accounts[currentUser];
+                document.getElementById('welcomeText').innerText = `Halo, ${currentUser}!`;
+                document.getElementById('displaySaldo').innerText = data.saldo.toLocaleString();
+                document.getElementById('displayCita').innerText = data.cita;
+                
+                // Growth Saldo
+                let growth = 0;
+                if(data.initialSaldo > 0) {
+                    growth = ((data.saldo - data.initialSaldo) / data.initialSaldo) * 100;
+                }
+                const growthEl = document.getElementById('growthText');
+                growthEl.innerText = (growth >= 0 ? "+" : "") + growth.toFixed(1) + "% dari awal";
+                growthEl.style.color = growth >= 0 ? "var(--accent-green)" : "#ff4d4d";
+
+                // Target
+                const targetEl = document.getElementById('targetList');
+                if (data.targets.length > 0) {
+                    targetEl.innerHTML = data.targets.map((t, i) => `
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ccc; padding:8px 0;">
+                            <span>${t}</span>
+                            <span style="color:red; cursor:pointer;" onclick="deleteTarget(${i})">x</span>
+                        </div>
+                    `).join('');
+                } else {
+                    targetEl.innerHTML = '<p style="text-align:center; color:gray;">Belum ada target</p>';
+                }
+
+                // Schedule
+                renderSchedule(data.schedule);
+            } else {
+                // Default view (Guest)
+                document.getElementById('welcomeText').innerText = "Selamat Datang!";
+                document.getElementById('displaySaldo').innerText = "0";
+                renderSchedule(defaultUser.schedule);
+                document.getElementById('targetList').innerHTML = '<p style="text-align:center;">Login untuk melihat target</p>';
+            }
+
+            // Profil
+            if (currentUser) {
+                document.getElementById('notLoggedInBlock').classList.add('hidden');
+                document.getElementById('loggedInBlock').classList.remove('hidden');
+                
+                const data = accounts[currentUser];
+                const media = mediaStorage[currentUser] || { music: [], photos: [], videos: [] };
+                
+                document.getElementById('profileName').innerText = currentUser;
+                document.getElementById('profileBio').innerText = data.bio;
+                document.getElementById('profileImg').src = data.profilePic;
+
+                // Render Music
+                const mList = document.getElementById('musicList');
+                if (media.music.length === 0) mList.innerHTML = "<p>Belum ada musik.</p>";
+                else {
+                    mList.innerHTML = media.music.map((m, i) => `
+                        <div style="background:var(--bg-color); border:2px solid var(--text-color); border-radius:10px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div onclick="playMusic(${i})" style="cursor:pointer; font-weight:bold; flex:1;">🎵 ${m.name}</div>
+                            <span onclick="deleteMediaItem('music', ${i})" style="color:red; font-weight:bold; cursor:pointer;">HAPUS</span>
+                        </div>
+                    `).join('');
+                }
+
+                // Render Media (Photo/Video)
+                const gList = document.getElementById('mediaGallery');
+                if (media.photos.length === 0 && media.videos.length === 0) {
+                    gList.innerHTML = "<p style='grid-column:span 2; text-align:center;'>Belum ada foto/video.</p>";
+                } else {
+                    let html = '';
+                    // Photos
+                    media.photos.forEach((p, i) => {
+                        html += `
+                        <div class="media-item" onclick="showMediaPreview('photo', '${p}')">
+                            <img src="${p}">
+                            <div class="delete-btn-overlay" onclick="event.stopPropagation(); deleteMediaItem('photo', ${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+                        </div>`;
+                    });
+                    // Videos
+                    media.videos.forEach((v, i) => {
+                        html += `
+                        <div class="media-item" onclick="showMediaPreview('video', '${v}')">
+                            <video src="${v}"></video>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:white;">▶</div>
+                            <div class="delete-btn-overlay" onclick="event.stopPropagation(); deleteMediaItem('video', ${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+                        </div>`;
+                    });
+                    gList.innerHTML = html;
+                }
+            } else {
+                document.getElementById('notLoggedInBlock').classList.remove('hidden');
+                document.getElementById('loggedInBlock').classList.add('hidden');
+            }
+        }
+
+        function renderSchedule(schedule) {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+            
+            // Header
+            days.forEach(d => {
+                grid.innerHTML += `<div class="schedule-header">${d}</div>`;
+            });
+            
+            // Cari max row
+            let maxRow = 0;
+            days.forEach(d => { if(schedule[d] && schedule[d].length > maxRow) maxRow = schedule[d].length; });
+            if (maxRow < 2) maxRow = 2; // Min 2 baris
+
+            for(let i=0; i<maxRow; i++) {
+                days.forEach(d => {
+                    const val = (schedule[d] && schedule[d][i]) ? schedule[d][i] : "-";
+                    grid.innerHTML += `<div class="schedule-cell">${val}</div>`;
+                });
+            }
+        }
+
+        // --- FEATURES ---
+
+        function addMoney() {
+            const val = parseInt(document.getElementById('inputAmount').value);
+            if (!val) return;
+            const data = accounts[currentUser];
+            if(data.initialSaldo === 0) data.initialSaldo = val;
+            data.saldo += val;
+            
+            // History
+            const date = new Date().toLocaleDateString('id-ID');
+            data.history.unshift(`+ Rp ${val.toLocaleString()} (${date})`);
+            if(data.history.length > 20) data.history.pop();
+
+            saveData();
+            closeModal();
+            document.getElementById('inputAmount').value = '';
+        }
+
+        function saveMapel() {
+            const day = document.getElementById('daySelect').value;
+            const text = document.getElementById('mapelInput').value;
+            if(!text) return;
+
+            const arr = text.split(',').map(x => x.trim());
+            accounts[currentUser].schedule[day] = arr;
+            saveData();
+            closeModal();
+        }
+
+        function addTarget() {
+            const val = document.getElementById('targetInput').value.trim();
+            if(val) {
+                accounts[currentUser].targets.push(val);
+                saveData();
+                closeModal();
+                document.getElementById('targetInput').value = '';
+            }
+        }
+
+        function deleteTarget(idx) {
+            accounts[currentUser].targets.splice(idx, 1);
+            saveData();
+        }
+
+        function saveCita() {
+            const val = document.getElementById('citaInput').value.trim();
+            if(val) {
+                accounts[currentUser].cita = val;
+                saveData();
+                closeModal();
+            }
+        }
+
+        // --- MEDIA & UPLOAD ---
+        function processUpload(e, type) {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            // Cek Ukuran (Limitasi Browser)
+            if(file.size > 3 * 1024 * 1024) { // 3MB Limit
+                alert("File terlalu besar! Maksimal 3MB agar aplikasi tidak berat.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const res = evt.target.result;
+                if(!mediaStorage[currentUser]) mediaStorage[currentUser] = {music:[], photos:[], videos:[]};
+
+                if(type === 'music') {
+                    const name = prompt("Nama lagu:", file.name);
+                    if(name) {
+                        mediaStorage[currentUser].music.push({name: name, src: res});
+                        saveData();
+                        alert("Musik berhasil disimpan!");
+                    }
+                } else {
+                    if(file.type.startsWith('video')) {
+                        mediaStorage[currentUser].videos.push(res);
+                    } else {
+                        mediaStorage[currentUser].photos.push(res);
+                    }
+                    saveData();
+                    alert("Media berhasil disimpan!");
+                }
+                closeModal();
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function uploadProfilePic(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    accounts[currentUser].profilePic = evt.target.result;
+                    saveData();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function deleteMediaItem(type, index) {
+            if(!confirm("Hapus item ini?")) return;
+            const m = mediaStorage[currentUser];
+            if(type === 'music') m.music.splice(index, 1);
+            if(type === 'photo') m.photos.splice(index, 1);
+            if(type === 'video') m.videos.splice(index, 1);
+            saveData();
+        }
+
+        // --- MUSIC PLAYER ---
+        let currentPlaylist = [];
+        let currentTrackIndex = -1;
+        const audio = document.getElementById('globalAudio');
+        const audioBar = document.getElementById('audioBar');
+
+        function playMusic(index) {
+            currentPlaylist = mediaStorage[currentUser].music;
+            currentTrackIndex = index;
+            loadTrack(currentPlaylist[index]);
+            audioBar.classList.add('active');
+        }
+
+        function loadTrack(track) {
+            audio.src = track.src;
+            document.getElementById('audioTitle').innerText = track.name;
+            audio.play();
+            updatePlayIcon(true);
+        }
+
+        function togglePlay() {
+            if(audio.paused) {
+                audio.play();
+                updatePlayIcon(true);
+            } else {
+                audio.pause();
+                updatePlayIcon(false);
+            }
+        }
+
+        function stopMusic() {
+            audio.pause();
+            audio.currentTime = 0;
+            audioBar.classList.remove('active');
+        }
+
+        function updatePlayIcon(isPlaying) {
+            const icon = document.getElementById('playIcon');
+            if(isPlaying) icon.innerHTML = '<rect x="6" y="6" width="4" height="12"/><rect x="14" y="6" width="4" height="12"/>'; // Pause icon
+            else icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>'; // Play icon
+        }
+
+        // Auto Next Track
+        audio.onended = function() {
+            if(currentTrackIndex < currentPlaylist.length - 1) {
+                currentTrackIndex++;
+                loadTrack(currentPlaylist[currentTrackIndex]);
+            } else {
+                currentTrackIndex = 0; // Loop ke awal
+                loadTrack(currentPlaylist[0]);
+            }
+        };
+
+        // --- PREVIEW ---
+        function showMediaPreview(type, src) {
+            const box = document.getElementById('mediaContent');
+            const modal = document.getElementById('mediaPreviewModal');
+            if(type === 'photo') {
+                box.innerHTML = `<img src="${src}" style="width:100%">`;
+            } else {
+                box.innerHTML = `<video src="${src}" controls autoplay style="width:100%"></video>`;
+            }
+            modal.classList.add('active');
+        }
+
+        function closeMediaPreview() {
+            document.getElementById('mediaPreviewModal').classList.remove('active');
+            document.getElementById('mediaContent').innerHTML = '';
+        }
+
+        // --- EXPORT / IMPORT ---
+        function exportData() {
+            if(!currentUser) return;
+            
+            const exportObj = {
+                user: accounts[currentUser],
+                media: mediaStorage[currentUser]
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Backup_${currentUser}.json`);
+            dlAnchorElem.click();
+        }
+
+        function importData() {
+            const file = document.getElementById('importFile').files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if(json.user && json.media) {
+                        // Jika user saat ini login, timpa datanya
+                        // Jika tidak, kita buat user baru berdasarkan file backup?
+                        // Untuk keamanan dan kemudahan, kita timpa data user yang sedang login atau minta login dulu.
+                        
+                        if(!currentUser) {
+                            alert("Silakan login atau buat akun dummy dulu untuk menimpa data.");
+                            return;
+                        }
+
+                        if(confirm("Data saat ini akan ditimpa dengan data backup. Lanjutkan?")) {
+                            accounts[currentUser] = json.user;
+                            mediaStorage[currentUser] = json.media;
+                            saveData();
+                            alert("Import Berhasil! Halaman akan dimuat ulang.");
+                            location.reload();
+                        }
+                    } else {
+                        alert("Format file salah!");
+                    }
+                } catch(err) {
+                    alert("Gagal membaca file json.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- UTILS UI ---
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
+        }
+        function closeAll() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('overlay').style.display = 'none';
+        }
+        function showModal(id) {
+            closeAll();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById(id).style.display = 'block';
+            
+            if(id === 'modalWalletDetail' && currentUser) {
+                const hList = document.getElementById('historyList');
+                const history = accounts[currentUser].history;
+                hList.innerHTML = history.length ? history.map(h => `<div style="padding:5px; border-bottom:1px solid #eee;">${h}</div>`).join('') : '<p>Belum ada transaksi</p>';
+            }
+        }
+        function switchModal(id) {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+        function closeModal() {
+            closeAll();
+        }
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('dixz_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            closeSidebar();
+        }
+        // Load Theme
+        if(localStorage.getItem('dixz_theme') === 'dark') document.body.classList.add('dark-mode');
+
+        function switchPage(page) {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('profilePage').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+            
+            if(page === 'home') {
+                document.getElementById('homePage').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[0].classList.add('active-nav');
+            } else {
+                document.getElementById('profilePage').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[1].classList.add('active-nav');
+            }
+        }
+    </script>
+</body>
+</html>
