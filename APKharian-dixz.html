@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>dixzAPK - Comic Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #70d6ff;
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-style: 2px solid #333;
+            --accent-green: #4ade80;
+        }
+
+        body.dark-mode {
+            --bg-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --card-bg: #34495e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            line-height: 1.5;
+        }
+
+        /* Logo */
+        .logo {
+            font-family: 'Comic Neue', cursive;
+            font-weight: 700;
+            font-size: 1.7rem;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 0px #333;
+            letter-spacing: -0.5px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--card-bg);
+            border-bottom: var(--border-style);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .menu-btn {
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .menu-btn div { height: 3px; background: #333; border-radius: 2px; }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: var(--card-bg);
+            border-right: var(--border-style);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .sidebar-header h3 {
+            font-family: 'Comic Neue', cursive;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .back-btn {
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #fff;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .side-item {
+            margin: 12px 0;
+            padding: 12px;
+            background: #f9f9f9;
+            border: 2px solid #333;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+            font-size: 1rem;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .side-item:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--primary-color);
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+        }
+
+        /* Content */
+        .content {
+            padding: 80px 16px 100px 16px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .premium-card {
+            background: var(--card-bg);
+            border: 3px solid #333;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 6px 6px 0px var(--secondary-color);
+        }
+
+        .balance-title {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .balance-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            font-family: 'Comic Neue', cursive;
+            margin-top: 8px;
+        }
+
+        /* Redesigned Wallet Icon */
+        .wallet-icon {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.3s;
+        }
+        .wallet-icon:hover {
+            stroke: var(--primary-color);
+            transform: scale(1.1);
+        }
+        .wallet-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Percentage Growth Indicator */
+        .growth-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .growth-positive {
+            color: var(--accent-green);
+        }
+        .growth-negative {
+            color: #ff4d4d;
+        }
+        .growth-arrow {
+            font-size: 1rem;
+        }
+
+        /* Schedule Grid */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .schedule-header {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 0.9rem;
+            border: 2px solid #333;
+            font-family: 'Patrick Hand', cursive;
+        }
+        .schedule-cell {
+            background: #fff;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 0.88rem;
+            border: 2px solid #333;
+            color: #333;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        /* Calendar */
+        .calendar {
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 12px;
+            color: #333;
+        }
+        .cal-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .day {
+            padding: 8px 0;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .today { background: var(--secondary-color); font-weight: bold; border: 1px solid #333; }
+        .holiday { color: red; font-weight: bold; }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 92%;
+            max-width: 380px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 3000;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.25);
+            color: #333;
+            font-size: 1rem;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #333;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            min-height: 48px;
+        }
+        .btn-comic {
+            background: var(--primary-color);
+            color: white;
+            border: 2px solid #333;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 4px 4px 0px #333;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+        .btn-comic:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #333;
+        }
+        .btn-comic:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #333;
+        }
+        .btn-comic.secondary {
+            background: #ccc;
+            color: #333;
+        }
+        .btn-comic.secondary:hover {
+            background: #bbb;
+        }
+
+        /* Target Controls */
+        .target-controls {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .btn-target {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-plus { background: var(--primary-color); color: white; }
+        .btn-minus { background: #ccc; color: #333; }
+
+        /* Modal Buttons Row */
+        .modal-buttons-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .modal-buttons-row .btn-comic {
+            flex: 1;
+            margin-top: 0;
+        }
+        .modal-buttons-row .btn-comic:first-child {
+            flex: 2;
+        }
+
+        /* Transaction Icon */
+        .transaction-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+            transition: all 0.3s;
+        }
+        .transaction-icon:hover {
+            stroke: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* Wallet Detail Modal */
+        .wallet-detail {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #ffb6c1 100%);
+            border: 3px solid #333;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            color: white;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+        }
+        .wallet-detail .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .wallet-detail .amount {
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: 'Comic Neue', cursive;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+        .wallet-detail .amount span {
+            font-size: 1.2rem;
+        }
+
+        /* Transaction History */
+        .transaction-section {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        .transaction-section::-webkit-scrollbar {
+            width: 6px;
+        }
+        .transaction-section::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9f9f9;
+            border: 2px solid #333;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        .transaction-icon-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .transaction-icon-small.in {
+            background: var(--accent-green);
+            color: white;
+        }
+        .transaction-icon-small.out {
+            background: #ff4d4d;
+            color: white;
+        }
+        .transaction-info {
+            flex: 1;
+        }
+        .transaction-type {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .transaction-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .transaction-amount {
+            font-weight: bold;
+            font-family: 'Comic Neue', cursive;
+        }
+        .transaction-amount.in {
+            color: var(--accent-green);
+        }
+        .transaction-amount.out {
+            color: #ff4d4d;
+        }
+
+        /* DANA Style Receipt */
+        .dana-receipt {
+            background: linear-gradient(180deg, #4e54c8 0%, #8f94fb 100%);
+            border: 3px solid #333;
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+        .dana-receipt .dana-logo {
+            font-family: 'Comic Neue', cursive;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+        .dana-receipt .success-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .dana-receipt .success-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent-green);
+        }
+        .dana-receipt .receipt-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .dana-receipt .receipt-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Comic Neue', cursive;
+            margin-bottom: 16px;
+        }
+        .dana-receipt .receipt-details {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .dana-receipt .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .dana-receipt .receipt-label {
+            opacity: 0.8;
+        }
+        .dana-receipt .receipt-value {
+            font-weight: 600;
+        }
+        .dana-receipt .footer-text {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Profile Popup */
+        .profile-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 300px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 16px;
+            padding: 16px;
+            z-index: 3000;
+            text-align: center;
+        }
+        .profile-option {
+            padding: 12px;
+            margin: 6px 0;
+            border: 2px solid #333;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .profile-option:hover { background: #f9f9f9; }
+
+        /* Delete Confirm */
+        .delete-confirm {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 320px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 4000;
+            text-align: center;
+        }
+        .delete-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .btn-delete { flex: 1; background: #ff4d4d; color: white; border: 2px solid #333; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-cancel { flex: 1; background: #ccc; color: #333; border: 2px solid #333; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        .hidden { display: none !important; }
+
+        h2, h3 {
+            margin: 16px 0 12px 0;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1.4rem;
+        }
+
+        p { margin: 8px 0; }
+
+        /* Bottom Nav (ikon di tengah) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--card-bg);
+            border-top: var(--border-style);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 0;
+        }
+        .nav-container {
+            display: flex;
+            gap: 32px;
+        }
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 0;
+        }
+        .nav-icon {
+            width: 36px;
+            height: 36px;
+            background: #eee;
+            border: 2px solid #333;
+            border-radius: 10px;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .active-nav .nav-icon {
+            background: var(--primary-color);
+        }
+
+        /* Notification Icon */
+        .notification-btn {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.3s;
+        }
+        .notification-btn:hover {
+            stroke: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* Withdraw Modal Enhanced */
+        .withdraw-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .withdraw-header h3 {
+            margin: 0;
+        }
+        .withdraw-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Comic Style Profile Image */
+        .profile-img-comic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #333;
+            object-fit: cover;
+            margin: 0 auto 16px;
+            box-shadow: 4px 4px 0px var(--primary-color);
+            transition: all 0.3s;
+        }
+        .profile-img-comic:hover {
+            transform: scale(1.05);
+            box-shadow: 6px 6px 0px var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Top Nav -->
+    <nav class="top-nav">
+        <div class="logo">dixzAPK</div>
+        <div class="menu-btn" onclick="toggleSidebar()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Pengaturan</h3>
+            <div class="back-btn" onclick="toggleSidebar()">←</div>
+        </div>
+        <div class="side-item" onclick="toggleDarkMode()">Mode Gelap/Cerah</div>
+        <div class="side-item" onclick="showModal('modalUang')">Input Uang</div>
+        <div class="side-item" onclick="showModal('modalMapel')">Edit Jadwal Pelajaran</div>
+        <div class="side-item" onclick="showModal('modalTarget')">Tambah Target Kecil</div>
+        <div class="side-item" onclick="showModal('modalCita')">Tambah Cita-Cita</div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalUang" class="modal">
+        <h3>Input Saldo</h3>
+        <input type="number" id="inputSaldo" placeholder="Masukkan jumlah uang...">
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="addSaldo()">Tambahkan</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <div id="modalMapel" class="modal">
+        <h3>Edit Jadwal</h3>
+        <input type="text" id="editHari" placeholder="Hari (Senin-Jumat)">
+        <input type="text" id="editMataPelajaran" placeholder="Mapel (pisahkan dengan koma)">
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="updateSchedule()">Simpan Jadwal</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <div id="modalTarget" class="modal">
+        <h3>Target Baru</h3>
+        <div id="targetInputs">
+            <input type="text" class="target-input-field" placeholder="Target kamu...">
+        </div>
+        <div class="target-controls">
+            <button class="btn-target btn-plus" onclick="addTargetField()">+</button>
+            <button class="btn-target btn-minus" onclick="removeLastTargetField()">−</button>
+        </div>
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="saveTargets()">Tambahkan Ke Beranda</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <div id="modalCita" class="modal">
+        <h3>Cita-Cita</h3>
+        <input type="text" id="inputCita" placeholder="Apa cita-citamu?">
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="saveCita()">Simpan</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <!-- Wallet Detail Modal -->
+    <div id="modalWalletDetail" class="modal">
+        <h3>Dompet Saya</h3>
+        <div class="wallet-detail">
+            <div class="label">Total Saldo</div>
+            <div class="amount">Rp <span id="walletDetailAmount">0</span></div>
+        </div>
+        <div class="transaction-section" id="transactionHistory">
+            <!-- Transactions will be rendered here -->
+        </div>
+        <button class="btn-comic" onclick="showModal('modalWithdraw')" style="margin-top: 12px;">Tarik Uang</button>
+        <button class="btn-comic secondary" onclick="closeModal()">Tutup</button>
+    </div>
+
+    <div id="modalWithdraw" class="modal">
+        <div class="withdraw-header">
+            <h3>Tarik Uang</h3>
+            <div class="withdraw-actions">
+                <svg class="notification-btn" onclick="showTransactionHistory()" viewBox="0 0 24 24">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <button class="btn-comic secondary" onclick="closeModal()" style="padding: 8px 12px; min-height: 36px; font-size: 0.9rem;">Batal</button>
+            </div>
+        </div>
+        <input type="number" id="withdrawAmount" placeholder="Jumlah yang ingin diambil...">
+        <div class="wallet-detail" style="margin-top: 16px;">
+            <div class="label">Saldo Tersedia</div>
+            <div class="amount" style="font-size: 1.6rem;">Rp <span id="withdrawDetailAmount">0</span></div>
+        </div>
+        <button class="btn-comic" onclick="withdrawMoney()">AMBIL</button>
+        <div class="dana-receipt" id="receipt" style="display:none; margin-top:16px;">
+            <div class="dana-logo">dixzAPK</div>
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="receipt-title">Penarikan Berhasil!</div>
+            <div class="receipt-amount">Rp <span id="receiptAmount"></span></div>
+            <div class="receipt-details">
+                <div class="receipt-row">
+                    <span class="receipt-label">ID Transaksi</span>
+                    <span class="receipt-value" id="receiptId"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Tanggal</span>
+                    <span class="receipt-value" id="receiptDate"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Waktu</span>
+                    <span class="receipt-value" id="receiptTime"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Sisa Saldo</span>
+                    <span class="receipt-value" id="receiptBalance"></span>
+                </div>
+            </div>
+            <div class="footer-text">Terima kasih telah menggunakan dixzAPK</div>
+        </div>
+    </div>
+
+    <div id="modalLogin" class="modal">
+        <h3>Login</h3>
+        <input type="text" id="logUser" placeholder="Username">
+        <input type="password" id="logPass" placeholder="Password">
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="doLogin()">Login</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+        <p style="margin-top:12px; font-size:0.9rem;">
+            Belum punya akun? <a href="#" onclick="showRegister()" style="color:var(--primary-color); text-decoration:underline;">Daftar</a>
+        </p>
+    </div>
+
+    <div id="modalRegister" class="modal">
+        <h3>Daftar Akun</h3>
+        <input type="email" placeholder="Email Aktif">
+        <input type="text" id="regUser" placeholder="Username">
+        <input type="password" id="regPass" placeholder="Password">
+        <input type="date" placeholder="Tanggal Lahir">
+        <div style="background: #eee; padding: 12px; margin: 12px 0; border: 1px dashed #333; border-radius:8px;">
+            Captcha: <b id="captchaVal" style="font-family:monospace;"></b>
+            <input type="text" id="captchaIn" placeholder="Ketik captcha di atas" style="margin-top:8px;">
+        </div>
+        <div class="modal-buttons-row">
+            <button class="btn-comic" onclick="doRegister()">Daftar</button>
+            <button class="btn-comic secondary" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <!-- Profile Popup -->
+    <div id="profilePopup" class="profile-popup">
+        <div class="profile-option" onclick="triggerFileInput()">Ganti Foto Profil</div>
+        <div class="profile-option" onclick="showUsernameEdit()">Ganti Username</div>
+        <button class="btn-comic" style="margin-top:12px;" onclick="closeProfilePopup()">Tutup</button>
+    </div>
+
+    <!-- Delete Confirm -->
+    <div id="deleteConfirm" class="delete-confirm">
+        <h3>Yakin hapus?</h3>
+        <p id="deleteMessage">Item ini akan dihapus.</p>
+        <div class="delete-actions">
+            <button class="btn-delete" onclick="confirmDelete()">Hapus</button>
+            <button class="btn-cancel" onclick="cancelDelete()">Batal</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="content" id="homePage">
+        <h2 id="welcomeText">Selamat datang, User!</h2>
+
+        <div class="premium-card">
+            <div class="balance-title">
+                SALDO SAYA
+                <svg class="wallet-icon" viewBox="0 0 24 24" onclick="showModal('modalWalletDetail')">
+                    <path d="M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                    <path d="M1 10h22"></path>
+                    <path d="M12 10V6a2 2 0 0 0-2-2H4"></path>
+                    <circle cx="16" cy="14" r="2"></circle>
+                </svg>
+            </div>
+            <div class="balance-amount">Rp <span id="displaySaldo">0</span></div>
+            <div class="growth-indicator" id="growthIndicator">
+                <span class="growth-arrow">📈</span>
+                <span id="growthPercent">+0%</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">dari awal</span>
+            </div>
+        </div>
+
+        <h3>Jadwal Pelajaran</h3>
+        <div class="premium-card">
+            <div class="schedule-grid" id="scheduleGrid"></div>
+        </div>
+
+        <h3>Kalender 2026</h3>
+        <div class="premium-card">
+            <div class="calendar">
+                <div class="cal-header">Januari 2026</div>
+                <div class="days-grid" id="calendarGrid"></div>
+            </div>
+            <p id="holidayDesc" style="font-size: 0.85rem; margin-top: 10px; color: #666; font-style: italic;"></p>
+        </div>
+
+        <h3>Target Harian</h3>
+        <div class="premium-card" id="targetList"></div>
+
+        <h3>Cita-Cita</h3>
+        <div class="premium-card" style="background: #fff0f3;">
+            <p id="displayCita" style="font-family: 'Patrick Hand'; font-size: 1.3rem; text-align: center;">Belum ditentukan</p>
+        </div>
+    </main>
+
+    <main class="content hidden" id="profilePage">
+        <div id="notLoggedIn">
+            <div class="premium-card" style="text-align: center;">
+                <h2>Profil</h2>
+                <p>Silakan login untuk melihat profil kamu.</p>
+                <button class="btn-comic" onclick="showModal('modalLogin')">LOGIN</button>
+            </div>
+        </div>
+
+        <div id="isLoggedIn" class="hidden">
+            <div class="premium-card" style="text-align: center;">
+                <img id="profilePreview" class="profile-img-comic" src="https://via.placeholder.com/100/ff85a2/333?text=Me" alt="Profile"
+                     onclick="showProfilePopup()" style="cursor: pointer;">
+                <input type="file" id="uploadFoto" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                <h2 id="userProfileName">Username</h2>
+                <button class="btn-comic" onclick="doLogout()" style="background: #ff4d4d; margin-top:12px;">Logout</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <div class="nav-container">
+            <div class="nav-item active-nav" onclick="showPage('home')">
+                <div class="nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span>Beranda</span>
+            </div>
+            <div class="nav-item" onclick="showPage('profile')">
+                <div class="nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <span>Profil</span>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        // State
+        let state = {
+            user: null,
+            username: "User",
+            saldo: 0,
+            initialSaldo: 0,
+            cita: "Belum ditentukan",
+            targets: ["Minum air 2L", "Belajar Coding"],
+            schedule: {
+                "Senin": ["IPA", "MTK"],
+                "Selasa": ["IPS", "B.Indo"],
+                "Rabu": ["KBM", "OR"],
+                "Kamis": ["MSG", "Seni"],
+                "Jumat": ["NBN", "Agama"]
+            },
+            profileImg: "https://via.placeholder.com/100/ff85a2/333?text=Me",
+            transactions: []
+        };
+
+        // Load from localStorage
+        function loadState() {
+            state.user = localStorage.getItem('user') || null;
+            state.username = localStorage.getItem('username') || "User";
+            state.saldo = parseInt(localStorage.getItem('saldo')) || 0;
+            state.initialSaldo = parseInt(localStorage.getItem('initialSaldo')) || 0;
+            state.cita = localStorage.getItem('cita') || "Belum ditentukan";
+            state.targets = JSON.parse(localStorage.getItem('targets')) || ["Minum air 2L", "Belajar Coding"];
+            state.schedule = JSON.parse(localStorage.getItem('schedule')) || {
+                "Senin": ["IPA", "MTK"],
+                "Selasa": ["IPS", "B.Indo"],
+                "Rabu": ["KBM", "OR"],
+                "Kamis": ["MSG", "Seni"],
+                "Jumat": ["NBN", "Agama"]
+            };
+            state.profileImg = localStorage.getItem('profileImg') || "https://via.placeholder.com/100/ff85a2/333?text=Me";
+            state.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        }
+
+        // Save to localStorage
+        function saveState() {
+            localStorage.setItem('user', state.user);
+            localStorage.setItem('username', state.username);
+            localStorage.setItem('saldo', state.saldo);
+            localStorage.setItem('initialSaldo', state.initialSaldo);
+            localStorage.setItem('cita', state.cita);
+            localStorage.setItem('targets', JSON.stringify(state.targets));
+            localStorage.setItem('schedule', JSON.stringify(state.schedule));
+            localStorage.setItem('profileImg', state.profileImg);
+            localStorage.setItem('transactions', JSON.stringify(state.transactions));
+        }
+
+        // Init UI
+        function initUI() {
+            document.getElementById('displaySaldo').innerText = state.saldo.toLocaleString();
+            document.getElementById('walletDetailAmount').innerText = state.saldo.toLocaleString();
+            document.getElementById('withdrawDetailAmount').innerText = state.saldo.toLocaleString();
+            document.getElementById('displayCita').innerText = state.cita;
+            document.getElementById('profilePreview').src = state.profileImg;
+
+            // Calculate growth percentage
+            updateGrowthIndicator();
+
+            if(state.user) {
+                document.getElementById('welcomeText').innerText = `Selamat datang, ${state.username}!`;
+                document.getElementById('userProfileName').innerText = state.username;
+                document.getElementById('notLoggedIn').classList.add('hidden');
+                document.getElementById('isLoggedIn').classList.remove('hidden');
+            } else {
+                document.getElementById('welcomeText').innerText = "Selamat datang, User!";
+                document.getElementById('notLoggedIn').classList.remove('hidden');
+                document.getElementById('isLoggedIn').classList.add('hidden');
+            }
+
+            renderSchedule();
+            renderCalendar();
+            renderTargets();
+            renderTransactions();
+        }
+
+        // Update growth indicator
+        function updateGrowthIndicator() {
+            const indicator = document.getElementById('growthIndicator');
+            const percentText = document.getElementById('growthPercent');
+            
+            if(state.initialSaldo === 0) {
+                percentText.innerText = "+0%";
+                indicator.querySelector('.growth-arrow').innerText = "📊";
+            } else {
+                const growth = ((state.saldo - state.initialSaldo) / state.initialSaldo) * 100;
+                if(growth >= 0) {
+                    percentText.innerText = `+${growth.toFixed(1)}%`;
+                    indicator.querySelector('.growth-arrow').innerText = "📈";
+                    indicator.className = "growth-indicator growth-positive";
+                } else {
+                    percentText.innerText = `${growth.toFixed(1)}%`;
+                    indicator.querySelector('.growth-arrow').innerText = "📉";
+                    indicator.className = "growth-indicator growth-negative";
+                }
+            }
+        }
+
+        // --- Functions ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('receipt').style.display = 'none';
+            document.getElementById('deleteConfirm').style.display = 'none';
+            document.getElementById('profilePopup').style.display = 'none';
+        }
+
+        function showModal(id) {
+            closeSidebar();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById(id).style.display = 'block';
+            if(id === 'modalRegister') genCaptcha();
+            if(id === 'modalWithdraw') {
+                document.getElementById('receipt').style.display = 'none';
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('withdrawDetailAmount').innerText = state.saldo.toLocaleString();
+            }
+            if(id === 'modalWalletDetail') {
+                document.getElementById('walletDetailAmount').innerText = state.saldo.toLocaleString();
+                renderTransactions();
+            }
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function closeAll() {
+            closeSidebar();
+            closeModal();
+        }
+
+        function addSaldo() {
+            let val = parseInt(document.getElementById('inputSaldo').value);
+            if(val && !isNaN(val) && val > 0) {
+                // Set initial balance if first time
+                if(state.initialSaldo === 0) {
+                    state.initialSaldo = val;
+                }
+                state.saldo += val;
+                
+                // Add transaction
+                addTransaction('Pemasukan', val, 'in');
+                
+                saveState();
+                document.getElementById('displaySaldo').innerText = state.saldo.toLocaleString();
+                updateGrowthIndicator();
+                closeModal();
+            } else {
+                alert("Masukkan angka yang valid!");
+            }
+        }
+
+        function addTransaction(type, amount, direction) {
+            const now = new Date();
+            const transaction = {
+                id: Math.random().toString(36).substring(2, 10).toUpperCase(),
+                type: type,
+                amount: amount,
+                direction: direction,
+                date: now.toLocaleDateString('id-ID'),
+                time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: now.getTime()
+            };
+            state.transactions.unshift(transaction);
+            // Keep only last 50 transactions
+            if(state.transactions.length > 50) {
+                state.transactions = state.transactions.slice(0, 50);
+            }
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionHistory');
+            if(!container) return;
+            
+            if(state.transactions.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">Belum ada transaksi</p>';
+                return;
+            }
+            
+            container.innerHTML = state.transactions.map(t => `
+                <div class="transaction-item">
+                    <div class="transaction-icon-small ${t.direction}">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            ${t.direction === 'in' 
+                                ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>'
+                                : '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline>'
+                            }
+                        </svg>
+                    </div>
+                    <div class="transaction-info">
+                        <div class="transaction-type">${t.type}</div>
+                        <div class="transaction-time">${t.date} • ${t.time}</div>
+                    </div>
+                    <div class="transaction-amount ${t.direction}">
+                        ${t.direction === 'in' ? '+' : '-'}Rp ${t.amount.toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showTransactionHistory() {
+            document.getElementById('modalWalletDetail').style.display = 'block';
+            document.getElementById('walletDetailAmount').innerText = state.saldo.toLocaleString();
+            renderTransactions();
+        }
+
+        function withdrawMoney() {
+            let amount = parseInt(document.getElementById('withdrawAmount').value);
+            if(!amount || amount <= 0) {
+                alert("Masukkan jumlah valid!");
+                return;
+            }
+            if(amount > state.saldo) {
+                alert("Saldo tidak mencukupi!");
+                return;
+            }
+
+            state.saldo -= amount;
+            
+            // Add transaction
+            addTransaction('Penarikan', amount, 'out');
+            
+            saveState();
+            document.getElementById('displaySaldo').innerText = state.saldo.toLocaleString();
+            document.getElementById('withdrawDetailAmount').innerText = state.saldo.toLocaleString();
+            updateGrowthIndicator();
+
+            // DANA Style Receipt
+            const id = Math.random().toString(36).substring(2, 10).toUpperCase();
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID');
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('receiptId').innerText = id;
+            document.getElementById('receiptDate').innerText = dateStr;
+            document.getElementById('receiptTime').innerText = timeStr;
+            document.getElementById('receiptAmount').innerText = amount.toLocaleString();
+            document.getElementById('receiptBalance').innerText = `Rp ${state.saldo.toLocaleString()}`;
+            document.getElementById('receipt').style.display = 'block';
+        }
+
+        function renderSchedule() {
+            const grid = document.getElementById('scheduleGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+            // Header
+            days.forEach(day => {
+                const el = document.createElement('div');
+                el.className = 'schedule-header';
+                el.innerText = day;
+                grid.appendChild(el);
+            });
+
+            const maxRow = Math.max(...Object.values(state.schedule).map(a => a.length));
+            for (let i = 0; i < maxRow; i++) {
+                days.forEach(day => {
+                    const el = document.createElement('div');
+                    el.className = 'schedule-cell';
+                    el.innerText = state.schedule[day][i] || "-";
+                    grid.appendChild(el);
+                });
+            }
+        }
+
+        function updateSchedule() {
+            let hari = document.getElementById('editHari').value.trim();
+            let mapels = document.getElementById('editMataPelajaran').value.split(',').map(m => m.trim()).filter(m => m);
+            const validDays = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+            if(validDays.includes(hari) && mapels.length > 0) {
+                state.schedule[hari] = mapels;
+                saveState();
+                renderSchedule();
+                closeModal();
+            } else {
+                alert("Hari tidak valid atau mapel kosong!\nContoh: Senin\nMapel: Matematika, IPA");
+            }
+        }
+
+        function addTargetField() {
+            const container = document.getElementById('targetInputs');
+            const newInput = document.createElement('input');
+            newInput.className = 'target-input-field';
+            newInput.placeholder = 'Target kamu...';
+            newInput.style.marginTop = '8px';
+            container.appendChild(newInput);
+        }
+
+        function removeLastTargetField() {
+            const inputs = document.querySelectorAll('.target-input-field');
+            if(inputs.length > 1) {
+                inputs[inputs.length - 1].remove();
+            } else {
+                alert("Minimal 1 target");
+            }
+        }
+
+        function saveTargets() {
+            const inputs = document.querySelectorAll('.target-input-field');
+            state.targets = [];
+            inputs.forEach(inp => {
+                if(inp.value.trim()) state.targets.push(inp.value.trim());
+            });
+            saveState();
+            renderTargets();
+            closeModal();
+        }
+
+        function renderTargets() {
+            const list = document.getElementById('targetList');
+            if(!list) return;
+            if(state.targets.length === 0) {
+                list.innerHTML = "<p style='text-align:center;color:#888;'>Belum ada target.</p>";
+                return;
+            }
+            list.innerHTML = state.targets.map((t, i) => `
+                <div style="margin-bottom:12px; display:flex; align-items:center; gap:10px; cursor:pointer;"
+                     onclick="showDeleteConfirm('target', ${i}, '${t.replace(/'/g, "\\'")}');">
+                    <input type="checkbox" id="t${i}" style="width:20px;height:20px;">
+                    <label for="t${i}" style="font-size:1.05rem;">${t}</label>
+                </div>
+            `).join('');
+        }
+
+        function saveCita() {
+            const cita = document.getElementById('inputCita').value.trim();
+            if(cita) {
+                state.cita = cita;
+                saveState();
+                document.getElementById('displayCita').innerText = state.cita;
+                closeModal();
+            } else {
+                alert("Cita-cita tidak boleh kosong!");
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const holidays = { 1: "Tahun Baru Masehi" };
+            const today = new Date();
+            const is2026 = today.getFullYear() === 2026;
+
+            // Jan 2026 starts on Thursday → 4 empty cells
+            for(let i = 0; i < 4; i++) grid.innerHTML += '<div></div>';
+
+            for(let d = 1; d <= 31; d++) {
+                let classes = "day";
+                if(is2026 && today.getMonth() === 0 && today.getDate() === d) {
+                    classes += " today";
+                }
+                if(holidays[d]) {
+                    classes += " holiday";
+                }
+                grid.innerHTML += `<div class="${classes}">${d}</div>`;
+            }
+            document.getElementById('holidayDesc').innerText = "1 Jan: Libur Tahun Baru";
+        }
+
+        function showPage(p) {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('profilePage').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+
+            if(p === 'home') {
+                document.getElementById('homePage').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[0].classList.add('active-nav');
+            } else {
+                document.getElementById('profilePage').classList.remove('hidden');
+                document.querySelectorAll('.nav-item')[1].classList.add('active-nav');
+            }
+        }
+
+        function showRegister() {
+            closeModal();
+            showModal('modalRegister');
+        }
+
+        function genCaptcha() {
+            let code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('captchaVal').innerText = code;
+        }
+
+        function doRegister() {
+            let u = document.getElementById('regUser').value.trim();
+            let p = document.getElementById('regPass').value;
+            let cap = document.getElementById('captchaIn').value.trim();
+            if(!u || !p) {
+                alert("Username dan password wajib diisi!");
+                return;
+            }
+            if(cap !== document.getElementById('captchaVal').innerText) {
+                alert("Captcha salah!");
+                genCaptcha();
+                return;
+            }
+            localStorage.setItem('regUser', u);
+            localStorage.setItem('regPass', p);
+            state.user = u;
+            state.username = u;
+            saveState();
+            alert("Berhasil Daftar! Silakan Login.");
+            showModal('modalLogin');
+        }
+
+        function doLogin() {
+            let u = document.getElementById('logUser').value.trim();
+            let p = document.getElementById('logPass').value;
+            let savedUser = localStorage.getItem('regUser');
+            let savedPass = localStorage.getItem('regPass');
+            if(u === savedUser && p === savedPass) {
+                state.user = u;
+                state.username = u;
+                saveState();
+                location.reload();
+            } else {
+                alert("Username atau password salah!");
+            }
+        }
+
+        function doLogout() {
+            state.user = null;
+            state.username = "User";
+            saveState();
+            location.reload();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            closeSidebar();
+        }
+
+        function previewImage(event) {
+            if(!event.target.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = document.getElementById('profilePreview');
+                img.src = reader.result;
+                state.profileImg = reader.result;
+                saveState();
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // Profile Popup
+        function showProfilePopup() {
+            if(!state.user) return;
+            document.getElementById('profilePopup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeProfilePopup() {
+            document.getElementById('profilePopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function triggerFileInput() {
+            document.getElementById('uploadFoto').click();
+            closeProfilePopup();
+        }
+
+        function showUsernameEdit() {
+            const newName = prompt("Masukkan username baru:", state.username);
+            if(newName && newName.trim()) {
+                state.username = newName.trim();
+                saveState();
+                document.getElementById('userProfileName').innerText = state.username;
+                alert("Username berhasil diubah!");
+            }
+            closeProfilePopup();
+        }
+
+        // Delete
+        let deleteItemIndex = -1;
+        let deleteItemType = '';
+
+        function showDeleteConfirm(type, index, text) {
+            deleteItemType = type;
+            deleteItemIndex = index;
+            document.getElementById('deleteMessage').innerText = `"${text}" akan dihapus.`;
+            document.getElementById('deleteConfirm').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function confirmDelete() {
+            if(deleteItemType === 'target') {
+                state.targets.splice(deleteItemIndex, 1);
+                saveState();
+                renderTargets();
+            } else if(deleteItemType === 'cita') {
+                state.cita = "Belum ditentukan";
+                saveState();
+                document.getElementById('displayCita').innerText = state.cita;
+            }
+            cancelDelete();
+        }
+
+        function cancelDelete() {
+            document.getElementById('deleteConfirm').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // On Load
+        window.addEventListener('load', function() {
+            loadState();
+            initUI();
+        });
+    </script>
+</body>
+</html>
