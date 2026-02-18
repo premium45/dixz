@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warung Azkia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ccfbf1 100%);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .floating-cart {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 50;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-cart:hover {
+            transform: scale(1.05);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 0 6px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        #cartModal {
+            position: fixed;
+            inset: 0;
+            z-index: 99;
+            display: none;
+        }
+
+        #cartModal.show {
+            display: block;
+        }
+
+        #cartModal.show .cart-overlay {
+            opacity: 1;
+        }
+
+        #cartModal.show .cart-panel {
+            transform: translateY(0);
+        }
+
+        .cart-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cart-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification-panel {
+            transform: translateY(-20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .notification-panel.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .category-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .popular-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            display: flex;
+            gap: 12px;
+            padding-bottom: 8px;
+        }
+        .popular-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .popular-item {
+            min-width: 160px;
+            flex-shrink: 0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .category-chip {
+            white-space: nowrap;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .category-chip.active {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .category-chip:not(.active) {
+            background: white;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+        .category-chip:not(.active):hover {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .product-detail-page {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ccfbf1 100%);
+            z-index: 60;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .product-detail-page.active {
+            transform: translateX(0);
+        }
+
+        .qty-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 70;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .qty-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .qty-modal-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            z-index: 71;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .qty-modal-panel.active {
+            transform: translateY(0);
+        }
+
+        .address-input {
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .address-input:focus {
+            border-color: #10b981;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .weight-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .weight-option.active {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .scale-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .qty-input-display {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .qty-input-display:active {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .qty-input-display input {
+            background: transparent;
+            border: none;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #10b981;
+            width: 100px;
+            outline: none;
+        }
+        .qty-input-display input::-webkit-outer-spin-button,
+        .qty-input-display input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .qty-input-display input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="glass-nav fixed top-0 w-full z-40 px-4 py-2.5 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-9 h-9 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-200">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+            <h1 class="text-lg font-bold text-emerald-900 tracking-tight">Warung Azkia</h1>
+        </div>
+        <div class="relative">
+            <button onclick="toggleNotifications()" class="text-emerald-700 hover:text-emerald-900 transition-colors p-2 relative">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span id="notifBadge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
+            </button>
+            <div id="notificationPanel" class="notification-panel absolute right-0 top-10 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                <div class="p-3 bg-emerald-50 border-b border-emerald-100 flex justify-between items-center">
+                    <h3 class="font-bold text-emerald-900 text-sm">Notifikasi</h3>
+                    <button onclick="clearNotifications()" class="text-xs text-emerald-600 hover:underline">Hapus Semua</button>
+                </div>
+                <div id="notificationList" class="max-h-56 overflow-y-auto custom-scroll">
+                    <div class="p-4 text-center text-gray-400 text-sm">Belum ada notifikasi</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16 px-3 max-w-2xl mx-auto">
+        <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-lg mb-3 relative group">
+            <img src="https://image.qwenlm.ai/public_source/c202b2a9-e670-4cdf-b543-855c1369c30b/100554ab9-2680-4697-9154-0bc7c946ee3d.png" alt="Warung Azkia Poster" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-emerald-900/60 to-transparent flex items-end p-6">
+                <div>
+                    <h2 class="text-white text-2xl font-bold">Belanja Segar & Hemat</h2>
+                    <p class="text-emerald-100 text-sm">Kebutuhan harian terbaik untuk keluarga Anda</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative mb-3">
+            <input type="text" id="searchInput" placeholder="Cari terigu, beras, minyak..." class="w-full pl-12 pr-4 py-4 rounded-xl border-none shadow-md focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white text-gray-700 placeholder-gray-400 text-base">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+        </div>
+
+        <div class="category-scroll flex gap-2 mb-3 pb-2">
+            <button onclick="filterByCategory('all')" class="category-chip" data-category="all"><i class="fa-solid fa-layer-group mr-1"></i> Semua</button>
+            <button onclick="filterByCategory('makanan-pokok')" class="category-chip" data-category="makanan-pokok"><i class="fa-solid fa-bowl-rice mr-1"></i> Makanan Pokok</button>
+            <button onclick="filterByCategory('makanan-ringan')" class="category-chip" data-category="makanan-ringan"><i class="fa-solid fa-cookie mr-1"></i> Makanan Ringan</button>
+            <button onclick="filterByCategory('bumbu-dapur')" class="category-chip" data-category="bumbu-dapur"><i class="fa-solid fa-pepper-hot mr-1"></i> Bumbu Dapur</button>
+            <button onclick="filterByCategory('kebutuhan-pokok')" class="category-chip" data-category="kebutuhan-pokok"><i class="fa-solid fa-house-chimney mr-1"></i> Kebutuhan Pokok</button>
+        </div>
+
+        <div class="mb-3">
+            <h3 class="text-base font-bold text-emerald-900 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-fire text-orange-500 text-sm"></i> Produk Populer <span id="popularCategoryLabel" class="text-xs font-normal text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full ml-2">Semua</span></h3>
+            <div id="popularProducts" class="popular-scroll"></div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-emerald-900 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-store text-emerald-600 text-sm"></i> Semua Produk</h3>
+            <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20"></div>
+        </div>
+    </main>
+
+    <button onclick="openCart()" class="floating-cart bg-gradient-to-br from-emerald-500 to-emerald-700 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:shadow-2xl focus:outline-none group">
+        <i class="fa-solid fa-cart-shopping text-xl group-hover:scale-110 transition-transform"></i>
+        <div id="cartCountBadge" class="cart-badge hidden">0</div>
+    </button>
+
+    <!-- Quantity Modal with Weight Support -->
+    <div id="qtyModalOverlay" class="qty-modal-overlay" onclick="closeQtyModal()"></div>
+    <div id="qtyModalPanel" class="qty-modal-panel">
+        <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+        
+        <div class="flex items-center gap-3 mb-4">
+            <img id="qtyProductImage" src="" alt="Product" class="w-14 h-14 object-contain bg-gray-50 rounded-lg">
+            <div class="flex-1">
+                <div class="flex items-center gap-2">
+                    <h3 id="qtyProductName" class="font-bold text-gray-800 text-sm">Product Name</h3>
+                    <span id="weightBadge" class="scale-badge hidden"><i class="fa-solid fa-scale-balanced"></i> Timbang</span>
+                </div>
+                <p id="qtyProductPrice" class="text-emerald-600 font-bold text-xs">Rp 0</p>
+            </div>
+        </div>
+
+        <!-- Weight Selection (shown only for weighted products) -->
+        <div id="weightSelection" class="mb-4 hidden">
+            <h4 class="text-sm font-bold text-gray-800 mb-2 text-center">Pilih Satuan Berat</h4>
+            <div class="flex gap-2 mb-3">
+                <div class="weight-option flex-1 text-center" onclick="selectWeightUnit('kg', this)">
+                    <i class="fa-solid fa-weight-hanging text-emerald-600 mb-1"></i>
+                    <div class="text-sm font-bold">Kilogram (kg)</div>
+                </div>
+                <div class="weight-option flex-1 text-center" onclick="selectWeightUnit('gram', this)">
+                    <i class="fa-solid fa-weight-hanging text-emerald-600 mb-1"></i>
+                    <div class="text-sm font-bold">Gram (g)</div>
+                </div>
+            </div>
+            <div class="bg-emerald-50 rounded-lg p-3 mb-3">
+                <p class="text-xs text-emerald-700 text-center">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Harga: <span id="pricePerUnit">Rp 0</span> per <span id="unitLabel">1 kg</span>
+                </p>
+            </div>
+        </div>
+
+        <h4 class="text-base font-bold text-gray-800 mb-4 text-center" id="qtyModalTitle">Berapa banyak?</h4>
+        
+        <!-- Manual Input for Quantity -->
+        <div class="mb-6">
+            <div class="qty-input-display" onclick="focusQtyInput()">
+                <input type="number" id="qtyInputManual" value="1" oninput="updateQtyFromInput()" onclick="event.stopPropagation()">
+                <div id="qtyUnitDisplay" class="text-sm text-gray-500 mt-1">kg</div>
+            </div>
+            <p class="text-xs text-gray-400 text-center mt-2"><i class="fa-solid fa-keyboard mr-1"></i>Ketik angka untuk input manual</p>
+        </div>
+
+        <!-- Plus/Minus Buttons -->
+        <div class="flex items-center justify-center gap-6 mb-6">
+            <button onclick="adjustQty(-1)" class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 flex items-center justify-center text-lg font-bold transition-colors">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <button onclick="adjustQty(1)" class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 flex items-center justify-center text-lg font-bold transition-colors">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+
+        <!-- Estimated Price Display -->
+        <div id="estimatedPrice" class="bg-emerald-50 rounded-xl p-3 mb-4 hidden">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Perkiraan Harga:</span>
+                <span id="estimatedPriceValue" class="text-lg font-bold text-emerald-700">Rp 0</span>
+            </div>
+        </div>
+        
+        <button onclick="confirmAddToCart()" class="w-full btn-primary py-3.5 rounded-xl font-bold text-base shadow-lg flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cart-plus"></i>
+            Tambahkan ke Keranjang
+        </button>
+    </div>
+
+    <div id="productDetailPage" class="product-detail-page">
+        <div class="min-h-screen flex flex-col">
+            <div class="sticky top-0 bg-white/95 backdrop-blur z-10 px-4 py-2.5 flex items-center gap-3 border-b border-gray-100">
+                <button onclick="closeProductDetail()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"><i class="fa-solid fa-arrow-left text-sm"></i></button>
+                <h2 class="font-bold text-base text-emerald-900">Detail Produk</h2>
+            </div>
+            <div class="flex-1 p-3">
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="aspect-square bg-gray-50 rounded-lg flex items-center justify-center p-4 mb-4">
+                        <img id="detailImage" src="" alt="Product" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h1 id="detailName" class="text-xl font-bold text-gray-900">Product Name</h1>
+                        <span id="detailWeightBadge" class="scale-badge hidden"><i class="fa-solid fa-scale-balanced"></i> Timbang</span>
+                    </div>
+                    <p id="detailPrice" class="text-xl font-bold text-emerald-600 mb-3">Rp 0</p>
+                    <p id="detailDesc" class="text-gray-500 leading-relaxed mb-4 text-sm">Description</p>
+                    <div class="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl mb-4">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div>
+                            <p class="font-semibold text-emerald-900 text-sm">Pengiriman Cepat</p>
+                            <p class="text-xs text-emerald-600">Pesanan diproses dalam 1 jam</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="showQtyModalFromDetail()" class="w-full btn-primary py-3.5 rounded-xl font-bold text-base shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-cart-plus"></i> Masukan ke Keranjang</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartModal">
+        <div class="cart-overlay" onclick="closeCartModal()"></div>
+        <div class="cart-panel">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-emerald-50 rounded-t-3xl flex-shrink-0">
+                <button class="back-btn" onclick="closeCartModal()"><i class="fa-solid fa-arrow-left text-xs"></i> Kembali</button>
+                <h2 class="text-lg font-bold text-emerald-900">Keranjang</h2>
+                <div class="w-16"></div>
+            </div>
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-3">
+                <div class="text-center text-gray-400 mt-10 flex flex-col items-center">
+                    <i class="fa-solid fa-basket-shopping text-4xl mb-3 opacity-30"></i>
+                    <p class="font-medium text-sm">Keranjang kosong</p>
+                    <p class="text-xs">Yuk belanja kebutuhanmu!</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Alamat Pengiriman</label>
+                <textarea id="addressInput" placeholder="Masukkan alamat lengkap..." class="address-input w-full p-3 rounded-xl text-sm resize-none bg-white" rows="3"></textarea>
+            </div>
+            <div class="p-4 border-t border-gray-100 bg-white pb-6 flex-shrink-0">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-gray-500 text-sm">Total Pembayaran</span>
+                    <span id="cartTotal" class="text-xl font-bold text-emerald-700">Rp 0</span>
+                </div>
+                <button onclick="checkoutWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-lg"></i> Beli Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NEW Product Data
+        const products = [
+            { id: 1, name: "Terigu", desc: "Tepung serbaguna untuk kebutuhan dapur harian.", basePrice: 10000, priceUnit: "kg", pricePer250g: 2500, image: "https://i.ibb.co/yc1FgvGb/terigu.jpg", category: "makanan-pokok", popular: true, isWeighted: true },
+            { id: 2, name: "Slay Olay", desc: "Camilan ringan untuk teman santai.", price: 2000, image: "https://i.ibb.co/sT6kzn9/slayolay.jpg", category: "makanan-ringan", popular: true, isWeighted: false },
+            { id: 3, name: "Kecap ABC", desc: "Kecap manis pelengkap rasa masakan.", price: 2500, image: "https://i.ibb.co/F4MSntKh/kecapabc.jpg", category: "bumbu-dapur", popular: true, isWeighted: false },
+            { id: 4, name: "Aci", desc: "Tepung aci untuk gorengan dan adonan kenyal.", basePrice: 11000, priceUnit: "kg", pricePer250g: 5500, image: "https://i.ibb.co/XxPYp3QW/aci.jpg", category: "makanan-pokok", popular: true, isWeighted: true },
+            { id: 5, name: "Arden", desc: "Produk harian praktis dan terjangkau.", price: 2000, image: "https://i.ibb.co/wh6Ntv4x/arden.jpg", category: "makanan-ringan", popular: false, isWeighted: false },
+            { id: 6, name: "Sabun Cuci Piring", desc: "Sabun pembersih ampuh untuk peralatan dapur.", price: 2500, image: "https://i.ibb.co/8LfvvX31/sabun.jpg", category: "kebutuhan-pokok", popular: true, isWeighted: false },
+            { id: 7, name: "Garam", desc: "Garam dapur untuk memperkaya rasa masakan.", price: 3000, image: "https://i.ibb.co/JjZCsN9c/garam.jpg", category: "bumbu-dapur", popular: false, isWeighted: false },
+            { id: 8, name: "Beras", desc: "Beras pilihan untuk konsumsi sehari-hari.", basePrice: 14000, priceUnit: "kg", image: "https://i.ibb.co/VYkYnD2g/beras.jpg", category: "makanan-pokok", popular: true, isWeighted: true },
+            { id: 9, name: "Minyak", desc: "Minyak goreng untuk hasil masakan lebih renyah.", basePrice: 22000, priceUnit: "kg", pricePer250g: 5500, image: "https://i.ibb.co/kg14v8yX/minyak.jpg", category: "kebutuhan-pokok", popular: true, isWeighted: true }
+        ];
+
+        let cart = {};
+        let notifications = [];
+        let currentProduct = null;
+        let tempQty = 1;
+        let currentCategory = 'all';
+        let currentWeightUnit = null;
+        const cartModal = document.getElementById('cartModal');
+        const cartCountBadge = document.getElementById('cartCountBadge');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts(products);
+            renderPopularProducts('all');
+            refreshCartBadge();
+            loadAddress();
+        });
+
+        function loadAddress() {
+            const savedAddress = localStorage.getItem('warungAzkiaAddress');
+            if (savedAddress) document.getElementById('addressInput').value = savedAddress;
+        }
+
+        function saveAddress() {
+            const address = document.getElementById('addressInput').value.trim();
+            localStorage.setItem('warungAzkiaAddress', address);
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.category === category) chip.classList.add('active');
+            });
+            renderPopularProducts(category);
+            let filtered = products;
+            if (category !== 'all') filtered = products.filter(p => p.category === category);
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
+            renderProducts(filtered);
+        }
+
+        function renderPopularProducts(category) {
+            const container = document.getElementById('popularProducts');
+            const label = document.getElementById('popularCategoryLabel');
+            let popular = products.filter(p => p.popular);
+            if (category !== 'all') popular = popular.filter(p => p.category === category);
+            const categoryNames = { 'all': 'Semua', 'makanan-pokok': 'Makanan Pokok', 'makanan-ringan': 'Makanan Ringan', 'bumbu-dapur': 'Bumbu Dapur', 'kebutuhan-pokok': 'Kebutuhan Pokok' };
+            label.textContent = categoryNames[category] || 'Semua';
+            if (popular.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm py-4 px-2"><i class="fa-solid fa-circle-info mr-1"></i> Belum ada produk populer</div>';
+                return;
+            }
+            container.innerHTML = popular.map(product => `
+                <div onclick="openProductDetail(${product.id})" class="popular-item product-card">
+                    <div class="relative pt-[100%] overflow-hidden bg-gradient-to-br from-gray-50 to-emerald-50">
+                        <img src="${product.image}" class="absolute top-0 left-0 w-full h-full object-contain p-3" onerror="this.src='https://via.placeholder.com/200?text=${product.name}'">
+                        ${product.isWeighted ? '<div class="absolute top-2 left-2 scale-badge"><i class="fa-solid fa-scale-balanced"></i> Timbang</div>' : ''}
+                        <div class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full"><i class="fa-solid fa-fire text-[10px]"></i></div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-gray-800 text-xs mb-1 line-clamp-1">${product.name}</h3>
+                        <p class="font-bold text-emerald-700 text-sm">${product.isWeighted ? 'Rp ' + product.basePrice.toLocaleString('id-ID') + '/' + product.priceUnit : 'Rp ' + product.price.toLocaleString('id-ID')}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProducts(items) {
+            const grid = document.getElementById('productGrid');
+            if (items.length === 0) {
+                grid.innerHTML = '<div class="col-span-2 text-center py-10 text-gray-400"><i class="fa-solid fa-magnifying-glass text-4xl mb-3"></i><p>Produk tidak ditemukan</p></div>';
+                return;
+            }
+            grid.innerHTML = items.map(product => `
+                <div onclick="openProductDetail(${product.id})" class="product-card flex flex-col h-full">
+                    <div class="relative pt-[100%] overflow-hidden bg-gradient-to-br from-gray-50 to-emerald-50">
+                        <img src="${product.image}" class="absolute top-0 left-0 w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/200?text=${product.name}'">
+                        ${product.isWeighted ? '<div class="absolute top-2 left-2 scale-badge"><i class="fa-solid fa-scale-balanced"></i> Timbang</div>' : ''}
+                        ${product.popular ? '<div class="absolute top-2 right-2 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-fire"></i></div>' : ''}
+                    </div>
+                    <div class="p-3 flex flex-col flex-1">
+                        <h3 class="font-bold text-gray-800 text-xs mb-1 line-clamp-1">${product.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2 line-clamp-2 flex-1">${product.desc}</p>
+                        <div class="mt-auto">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-emerald-700 text-xs">${product.isWeighted ? 'Rp ' + product.basePrice.toLocaleString('id-ID') + '/' + product.priceUnit : 'Rp ' + product.price.toLocaleString('id-ID')}</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); showQtyModal(${product.id})" class="w-full bg-white border border-emerald-200 text-emerald-700 py-1.5 rounded-lg font-semibold text-xs hover:bg-emerald-50 hover:border-emerald-300 transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-cart-shopping"></i> Keranjang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openProductDetail(id) {
+            currentProduct = products.find(p => p.id === id);
+            document.getElementById('detailImage').src = currentProduct.image;
+            document.getElementById('detailImage').onerror = function() { this.src = 'https://via.placeholder.com/200?text=' + currentProduct.name; };
+            document.getElementById('detailName').textContent = currentProduct.name;
+            document.getElementById('detailPrice').textContent = currentProduct.isWeighted ? 'Rp ' + currentProduct.basePrice.toLocaleString('id-ID') + '/' + currentProduct.priceUnit : 'Rp ' + currentProduct.price.toLocaleString('id-ID');
+            document.getElementById('detailDesc').textContent = currentProduct.desc;
+            
+            const weightBadge = document.getElementById('detailWeightBadge');
+            if (currentProduct.isWeighted) {
+                weightBadge.classList.remove('hidden');
+            } else {
+                weightBadge.classList.add('hidden');
+            }
+            
+            document.getElementById('productDetailPage').classList.add('active');
+        }
+
+        function closeProductDetail() {
+            document.getElementById('productDetailPage').classList.remove('active');
+            currentProduct = null;
+        }
+
+        function showQtyModalFromDetail() {
+            if (!currentProduct) return;
+            showQtyModal(currentProduct.id);
+        }
+
+        function showQtyModal(productId) {
+            currentProduct = products.find(p => p.id === productId);
+            tempQty = 1;
+            currentWeightUnit = null;
+            
+            document.getElementById('qtyProductImage').src = currentProduct.image;
+            document.getElementById('qtyProductImage').onerror = function() { this.src = 'https://via.placeholder.com/100?text=' + currentProduct.name; };
+            document.getElementById('qtyProductName').textContent = currentProduct.name;
+            
+            const weightBadge = document.getElementById('weightBadge');
+            const weightSelection = document.getElementById('weightSelection');
+            const estimatedPrice = document.getElementById('estimatedPrice');
+            const qtyUnitDisplay = document.getElementById('qtyUnitDisplay');
+            
+            if (currentProduct.isWeighted) {
+                weightBadge.classList.remove('hidden');
+                weightSelection.classList.remove('hidden');
+                estimatedPrice.classList.add('hidden');
+                document.getElementById('qtyModalTitle').textContent = "Pilih satuan berat dulu";
+                document.getElementById('pricePerUnit').textContent = 'Rp ' + currentProduct.basePrice.toLocaleString('id-ID');
+                document.getElementById('unitLabel').textContent = currentProduct.priceUnit;
+                qtyUnitDisplay.textContent = '-';
+                document.getElementById('qtyInputManual').value = '';
+                document.getElementById('qtyInputManual').disabled = true;
+            } else {
+                weightBadge.classList.add('hidden');
+                weightSelection.classList.add('hidden');
+                estimatedPrice.classList.add('hidden');
+                document.getElementById('qtyModalTitle').textContent = "Berapa banyak?";
+                document.getElementById('qtyProductPrice').textContent = 'Rp ' + currentProduct.price.toLocaleString('id-ID');
+                qtyUnitDisplay.textContent = 'pcs';
+                document.getElementById('qtyInputManual').value = '1';
+                document.getElementById('qtyInputManual').disabled = false;
+            }
+            
+            document.getElementById('qtyModalOverlay').classList.add('active');
+            document.getElementById('qtyModalPanel').classList.add('active');
+        }
+
+        function closeQtyModal() {
+            document.getElementById('qtyModalOverlay').classList.remove('active');
+            document.getElementById('qtyModalPanel').classList.remove('active');
+            setTimeout(() => { currentProduct = null; tempQty = 1; currentWeightUnit = null; }, 300);
+        }
+
+        function selectWeightUnit(unit, element) {
+            currentWeightUnit = unit;
+            document.querySelectorAll('.weight-option').forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('qtyUnitDisplay').textContent = unit;
+            document.getElementById('qtyInputManual').disabled = false;
+            document.getElementById('qtyInputManual').value = unit === 'gram' ? '250' : '1';
+            document.getElementById('qtyModalTitle').textContent = "Masukkan berat yang mau dibeli";
+            tempQty = unit === 'gram' ? 250 : 1;
+            updateEstimatedPrice();
+        }
+
+        function updateEstimatedPrice() {
+            if (!currentProduct || !currentProduct.isWeighted || !currentWeightUnit) return;
+            
+            let price = 0;
+            if (currentWeightUnit === 'kg') {
+                price = currentProduct.basePrice * tempQty;
+            } else {
+                if (currentProduct.pricePer250g) {
+                    price = currentProduct.pricePer250g * (tempQty / 250);
+                } else {
+                    price = currentProduct.basePrice * (tempQty / 1000);
+                }
+            }
+            
+            document.getElementById('estimatedPriceValue').textContent = 'Rp ' + Math.round(price).toLocaleString('id-ID');
+            document.getElementById('estimatedPrice').classList.remove('hidden');
+        }
+
+        function focusQtyInput() {
+            if (currentProduct && currentProduct.isWeighted && !currentWeightUnit) {
+                alert("Pilih satuan berat (kg atau gram) terlebih dahulu!");
+                return;
+            }
+            document.getElementById('qtyInputManual').focus();
+        }
+
+        function updateQtyFromInput() {
+            const inputVal = parseFloat(document.getElementById('qtyInputManual').value);
+            if (inputVal && inputVal > 0) {
+                tempQty = inputVal;
+                if (currentProduct && currentProduct.isWeighted) {
+                    updateEstimatedPrice();
+                }
+            }
+        }
+
+        function adjustQty(change) {
+            if (!currentWeightUnit && currentProduct && currentProduct.isWeighted) {
+                alert("Pilih satuan berat (kg atau gram) terlebih dahulu!");
+                return;
+            }
+            
+            if (currentProduct && currentProduct.isWeighted) {
+                if (currentWeightUnit === 'kg') {
+                    tempQty += change;
+                    if (tempQty < 0.5) tempQty = 0.5;
+                    tempQty = Math.round(tempQty * 2) / 2;
+                } else {
+                    tempQty += change * 250;
+                    if (tempQty < 250) tempQty = 250;
+                }
+            } else {
+                tempQty += change;
+                if (tempQty < 1) tempQty = 1;
+            }
+            document.getElementById('qtyInputManual').value = tempQty;
+            if (currentProduct && currentProduct.isWeighted) {
+                updateEstimatedPrice();
+            }
+        }
+
+        function confirmAddToCart() {
+            if (!currentProduct) return;
+            
+            if (currentProduct.isWeighted && !currentWeightUnit) {
+                alert("Pilih satuan berat (kg atau gram) terlebih dahulu!");
+                return;
+            }
+            
+            const pid = currentProduct.id;
+            let finalPrice = 0;
+            let weightInfo = '';
+            
+            if (currentProduct.isWeighted) {
+                if (currentWeightUnit === 'kg') {
+                    finalPrice = currentProduct.basePrice * tempQty;
+                    weightInfo = `${tempQty} kg`;
+                } else {
+                    if (currentProduct.pricePer250g) {
+                        finalPrice = currentProduct.pricePer250g * (tempQty / 250);
+                    } else {
+                        finalPrice = currentProduct.basePrice * (tempQty / 1000);
+                    }
+                    weightInfo = `${tempQty}g`;
+                }
+                finalPrice = Math.round(finalPrice);
+            } else {
+                finalPrice = currentProduct.price * tempQty;
+            }
+            
+            if (!cart[pid]) cart[pid] = { qty: 0, price: 0, weightInfo: '' };
+            cart[pid].qty += tempQty;
+            cart[pid].price = finalPrice;
+            if (currentProduct.isWeighted) {
+                cart[pid].weightInfo = weightInfo;
+                cart[pid].unit = currentWeightUnit;
+            }
+            
+            refreshCartBadge();
+            addNotification(`Berhasil menambahkan ${currentProduct.name} (${currentProduct.isWeighted ? weightInfo : tempQty + ' pcs'}) ke keranjang`);
+            closeQtyModal();
+            
+            const btn = document.querySelector('.floating-cart');
+            btn.classList.add('scale-110');
+            setTimeout(() => btn.classList.remove('scale-110'), 200);
+        }
+
+        function openCart() {
+            cartModal.classList.add('show');
+            renderCartItems();
+        }
+
+        function closeCartModal() {
+            cartModal.classList.remove('show');
+            saveAddress();
+        }
+
+        function getTotalCartItems() {
+            let total = 0;
+            for (const productId in cart) total += cart[productId].qty;
+            return total;
+        }
+
+        function refreshCartBadge() {
+            const totalItems = getTotalCartItems();
+            if (totalItems > 0) {
+                cartCountBadge.textContent = totalItems > 9 ? '9+' : totalItems;
+                cartCountBadge.classList.remove('hidden');
+            } else {
+                cartCountBadge.classList.add('hidden');
+            }
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            const totalEl = document.getElementById('cartTotal');
+            const productIds = Object.keys(cart);
+            if (productIds.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 mt-10 flex flex-col items-center"><i class="fa-solid fa-basket-shopping text-4xl mb-3 opacity-30"></i><p class="font-medium text-sm">Keranjang kosong</p><p class="text-xs">Yuk belanja kebutuhanmu!</p></div>';
+                totalEl.textContent = "Rp 0";
+                return;
+            }
+            let total = 0;
+            let html = '';
+            productIds.forEach(id => {
+                const product = products.find(p => p.id == id);
+                const item = cart[id];
+                total += item.price;
+                html += `
+                    <div class="flex gap-3 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
+                        <img src="${product.image}" class="w-16 h-16 object-contain bg-gray-50 rounded-lg" onerror="this.src='https://via.placeholder.com/100?text=${product.name}'">
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-gray-800 text-xs line-clamp-1">${product.name}</h4>
+                                    ${product.isWeighted ? '<span class="scale-badge text-[10px] px-1 py-0.5"><i class="fa-solid fa-scale-balanced"></i></span>' : ''}
+                                </div>
+                                <p class="text-xs text-gray-500">${product.isWeighted ? item.weightInfo : item.qty + ' pcs'} - Rp ${item.price.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
+                                    <button onclick="updateCartQuantity(${product.id}, -1)" class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-emerald-600"><i class="fa-solid fa-minus text-xs"></i></button>
+                                    <span class="text-xs font-bold text-gray-700 w-8 text-center">${product.isWeighted ? item.weightInfo : item.qty}</span>
+                                    <button onclick="updateCartQuantity(${product.id}, 1)" class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-emerald-600"><i class="fa-solid fa-plus text-xs"></i></button>
+                                </div>
+                                <button onclick="removeFromCart(${product.id})" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            totalEl.textContent = "Rp " + total.toLocaleString('id-ID');
+        }
+
+        function updateCartQuantity(productId, change) {
+            if (!cart[productId]) return;
+            const product = products.find(p => p.id == productId);
+            
+            if (product.isWeighted) {
+                let newQty = cart[productId].qty + change;
+                if (cart[productId].unit === 'kg') {
+                    newQty = Math.round(newQty * 2) / 2;
+                    if (newQty < 0.5) newQty = 0.5;
+                    cart[productId].price = Math.round(product.basePrice * newQty);
+                } else {
+                    newQty += change * 250;
+                    if (newQty < 250) newQty = 250;
+                    if (product.pricePer250g) {
+                        cart[productId].price = Math.round(product.pricePer250g * (newQty / 250));
+                    } else {
+                        cart[productId].price = Math.round(product.basePrice * (newQty / 1000));
+                    }
+                }
+                cart[productId].qty = newQty;
+                cart[productId].weightInfo = cart[productId].unit === 'kg' ? `${newQty} kg` : `${newQty}g`;
+            } else {
+                cart[productId].qty += change;
+                cart[productId].price = product.price * cart[productId].qty;
+            }
+            
+            if (cart[productId].qty <= 0) delete cart[productId];
+            refreshCartBadge();
+            renderCartItems();
+        }
+
+        function removeFromCart(productId) {
+            delete cart[productId];
+            refreshCartBadge();
+            renderCartItems();
+            addNotification("Produk dihapus dari keranjang");
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                renderNotifications();
+                document.getElementById('notifBadge').classList.add('hidden');
+            }
+        }
+
+        function addNotification(message) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            notifications.unshift({ message, time });
+            document.getElementById('notifBadge').classList.remove('hidden');
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm">Belum ada notifikasi</div>';
+                return;
+            }
+            list.innerHTML = notifications.map(n => `<div class="p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3 items-start"><div class="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div><div><p class="text-xs text-gray-800 font-medium">${n.message}</p><p class="text-xs text-gray-400 mt-0.5">${n.time}</p></div></div>`).join('');
+        }
+
+        function clearNotifications() {
+            notifications = [];
+            renderNotifications();
+            document.getElementById('notifBadge').classList.add('hidden');
+        }
+
+        function checkoutWhatsApp() {
+            const productIds = Object.keys(cart);
+            if (productIds.length === 0) { alert("Keranjang belanja masih kosong!"); return; }
+            const address = document.getElementById('addressInput').value.trim();
+            if (!address) { alert("Mohon isi alamat pengiriman terlebih dahulu!"); return; }
+            saveAddress();
+            let message = "bi meser%0A%0A";
+            let total = 0;
+            productIds.forEach(id => {
+                const product = products.find(p => p.id == id);
+                const item = cart[id];
+                total += item.price;
+                const weightInfo = product.isWeighted ? `(${item.weightInfo})` : `(${item.qty} pcs)`;
+                message += `- ${product.name} ${weightInfo} : Rp ${item.price.toLocaleString('id-ID')}%0A`;
+            });
+            message += `%0A*Total: Rp ${total.toLocaleString('id-ID')}*`;
+            message += "%0A%0A";
+            message += `*Alamat Pengiriman:*%0A${address.replace(/\n/g, '%0A')}`;
+            message += "%0A%0Agewat nya bi rusuh 😁";
+            const phone = "6282317018517";
+            const url = `https://wa.me/${phone}?text=${message}`;
+            addNotification("Belanjaan sedang diproses...");
+            renderNotifications();
+            setTimeout(() => {
+                window.open(url, '_blank');
+                cart = {};
+                refreshCartBadge();
+                closeCartModal();
+            }, 1000);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            let filtered = products;
+            if (currentCategory !== 'all') filtered = products.filter(p => p.category === currentCategory);
+            if (term) filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(filtered);
+        });
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notificationPanel');
+            const btn = e.target.closest('button');
+            if (!panel.contains(e.target) && !btn?.onclick?.toString().includes('toggleNotifications')) {
+                panel.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
